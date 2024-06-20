@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import re
 
 from htmlnode import LeafNode
 
@@ -58,3 +59,62 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             else:
                 new_nodes.append(TextNode(split[i], "text"))
     return new_nodes
+
+
+def extract_markdown_image(text):
+    matches = re.findall(r"!\[(.*?)\]\((.*?)\)", text)
+    return matches
+
+
+def extract_markdown_links(text):
+    matches = re.findall(r"\[(.+?)\]\((.+?)\)", text)
+    return matches
+
+
+def split_nodes_image(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != "text":
+            new_nodes.append(node)
+            continue
+        matches = extract_markdown_image(node.text)
+        split_text = node.text
+        for m in matches:
+            split = split_text.split(f"![{m[0]}]({m[1]})", 1)
+            if split[0] != "":
+                new_nodes.append(TextNode(split[0], "text"))
+            new_nodes.append(TextNode(m[0], "image", m[1]))
+            split_text = split[1]
+        if split_text != "":
+            new_nodes.append(TextNode(split_text, "text"))
+    return new_nodes
+
+
+def split_nodes_links(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != "text":
+            new_nodes.append(node)
+            continue
+        matches = extract_markdown_links(node.text)
+        split_text = node.text
+        for m in matches:
+            split = split_text.split(f"[{m[0]}]({m[1]})", 1)
+            if split[0] != "":
+                new_nodes.append(TextNode(split[0], "text"))
+            new_nodes.append(TextNode(m[0], "link", m[1]))
+            split_text = split[1]
+        if split_text != "":
+            new_nodes.append(TextNode(split_text, "text"))
+    return new_nodes
+
+
+def text_to_textnodes(text):
+    nodes = [TextNode(text, "text")]
+    nodes = split_nodes_delimiter(nodes, "`", "code")
+    nodes = split_nodes_delimiter(nodes, "**", "bold")
+    nodes = split_nodes_delimiter(nodes, "*", "italic")
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_links(nodes)
+
+    return nodes
