@@ -3,28 +3,12 @@
 import os
 import shutil
 
-
-def recursive_delete_items(directory):
-    for item in os.listdir(directory):
-        relative_path = directory + "/" + item
-        if os.path.isdir(relative_path):
-            recursive_delete_items(relative_path)
-            print(f"Removing dir: {relative_path}")
-            os.rmdir(relative_path)
-        else:
-            print(f"Removing file: {relative_path}")
-            os.remove(relative_path)
-
-
-def recursive_list_items(directory, arr):
-    for item in os.listdir(directory):
-        relative_path = directory + "/" + item
-        if os.path.isdir(relative_path):
-            recursive_list_items(relative_path, arr)
-        else:
-            split = relative_path.split("/")
-            arr.append("/".join(split[1:]))
-    return arr
+from markdown import extract_title, markdown_to_htmlnode
+from page import (
+    generate_page_recursive,
+    recursive_delete_items,
+    recursive_list_items,
+)
 
 
 if __name__ == "__main__":
@@ -42,3 +26,5 @@ if __name__ == "__main__":
             os.mkdir("/".join(dst.split("/")[:-1]))
         print(f"copying {src} to {dst}")
         shutil.copy(src, dst)
+
+    generate_page_recursive("content", "template.html", "public")

@@ -44,7 +44,7 @@ class ParentNode(HTMLNode):
     def __init__(self, tag, children, props=None) -> None:
         super().__init__(tag, None, children, props)
 
-    def to_html(self) -> str | None:
+    def to_html(self) -> str:
         if self.tag == None:
             raise ValueError("Tag is needed!")
         html_string = ""

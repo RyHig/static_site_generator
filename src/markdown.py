@@ -99,3 +99,10 @@ def paragraph_parse_delimiters(paragraph):
     for node in textnodes:
         children.append(text_node_to_html_node(node))
     return ParentNode("p", children)
+
+
+def extract_title(markdown):
+    title = markdown.split("\n")[0]
+    if title.startswith("# "):
+        return title.strip("# ")
+    raise Exception("No h1 heading.")
